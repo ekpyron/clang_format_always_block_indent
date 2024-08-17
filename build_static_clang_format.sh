@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 ROOTDIR="$(realpath "$(dirname "$0")")"
+MAKEFLAGS="-j 8"
 
 mkdir -p build
 pushd build
@@ -10,7 +11,6 @@ mkdir llvm
 pushd llvm
 
 cmake \
-	-G Ninja \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_INSTALL_PREFIX="${ROOTDIR}"/build \
 	-DLLVM_BUILD_STATIC=ON \
@@ -30,9 +30,9 @@ cmake \
 	-DLLVM_INCLUDE_TOOLS=OFF \
 	-DLLVM_INCLUDE_UTILS=OFF \
 	../../llvm-project/llvm
-ninja
+make
 sed -i -e 's/EXISTS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}\/bin\/llvm-tblgen"/FALSE/' utils/TableGen/cmake_install.cmake
-ninja install
+make ${MAKEFLAGS} install
 
 popd
 
@@ -51,7 +51,6 @@ export LC_PAPER=C
 export LC_TELEPHONE=C
 export LC_TIME=C
 cmake \
-    -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_INSTALL_PREFIX="${ROOTDIR}"/build \
 	-DCMAKE_PREFIX_PATH="${ROOTDIR}"/build \
@@ -80,7 +79,7 @@ cmake \
     -DCMAKE_EXE_LINKER_FLAGS=-static \
     -DLLVM_INCLUDE_TESTS=OFF \
     ../../llvm-project/clang
-ninja clang-format
+make ${MAKEFLAGS} clang-format
 install -m755 bin/clang-format "${ROOTDIR}"/build
 
 
