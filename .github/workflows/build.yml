@@ -10,9 +10,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'true'
+      - name: Install Ninja.
+        run: sudo apt-get install ninja-build
       - name: Build
         run: ./build_static_clang_format.sh
+      - name: Upload as artifact.
+        uses: actions/upload-artifact@v4
+        with:
+          name: clang-format
+          path: build/clang-format
       - name: Release
         uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/clang-format
